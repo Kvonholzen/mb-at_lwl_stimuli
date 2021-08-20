@@ -2,12 +2,18 @@
 
 
 # load the library
+##devtools::install_github("langcog/childesr")
 library(childesr)
 library(dplyr)
 
 
+COLLECTION = "German"
+
+#List:  [1] "Eng-NA"         "Scandinavian"   "Chinese"        "Other"          "Eng-UK"         "Celtic"         "Slavic"         "Clinical-MOR"  
+#[9] "Biling"         "Spanish"        "Clinical"       "DutchAfrikaans" "Japanese"       "Romance"        "EastAsian"      "German"        
+#[17] "Dutch"          "French"         "XLing"  
+
 word_list <- c("dog", 
-               "doggy", 
                "eat", 
                "sit", 
                "sleep", 
@@ -47,7 +53,7 @@ word_list <- c("dog",
                "train",
                "truck")
 
-d_prod <- get_tokens(collection = "Eng-NA",
+d_prod <- get_tokens(collection = COLLECTION,
                      age = c(12, 36),
                           role = "target_child",
                           token = word_list)
@@ -62,7 +68,7 @@ prod_sum <- d_prod %>%
   summarise(word_utt = n())
 
 
-speaker_stats <- get_speaker_statistics(collection = "Eng-NA",
+speaker_stats <- get_speaker_statistics(collection = COLLECTION,
                                         age = c(12, 36),
                                         role = "target_child")
 
@@ -102,3 +108,6 @@ dat <- merge(sp, word_list, by.x = "gloss", by.y = "word_list", all.y = T)
 dat <- dat[,c("order", "gloss", "avg_token_ratio")]
 
 dat$order <- as.numeric(dat$order)
+
+
+write.csv(dat, file = paste("ChildesData", COLLECTION, ".csv", sep = ""))
