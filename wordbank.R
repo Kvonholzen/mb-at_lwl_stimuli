@@ -5,10 +5,12 @@
 library(wordbankr)
 library(tidyr)
 
+LANGUAGE = "German" 
+##### IMPORTANT: Adjust to your language here. 
+
 
 
 word_list <- c("dog", 
-               "doggie", 
                "eat", 
                "sit", 
                "sleep", 
@@ -55,7 +57,7 @@ word_list$order <- rownames(word_list)
 # PRODUCTION DATA
 
 id <- get_instrument_data(
-  language = "English (American)",
+  language = LANGUAGE,
   form = "WS",
   administrations = TRUE,
   iteminfo = TRUE
@@ -80,12 +82,18 @@ idp <- id_prod %>%
 
 idp <- merge(idp, word_list, by.x = "definition", by.y = "word_list", all.y = T)
 
+# Save production data separately
+# 
+
+write.csv(idp, file = paste("WordbankProductionData", LANGUAGE, ".csv"))
 
 
 # COMPREHENSION DATA
+# 
+# NOTE: Not all languages have this, so if this next statement throws an error, check the wordbank website. 
 
 id_c <- get_instrument_data(
-  language = "English (American)",
+  language = LANGUAGE,
   form = "WG",
   administrations = TRUE,
   iteminfo = TRUE
@@ -117,5 +125,7 @@ idc <- merge(idc, word_list, by.x = "definition", by.y = "word_list", all.y = T)
 # bring together summary of comprehension and production
 
 
-dat <- merge(idp, idc, by = c("definition", "order"), all = T)
+dat <- merge(idp, idc, by = c("definition", "order"), all = T) #if you can get both comprehension and production
 dat$order <- as.numeric(dat$order)
+
+write.csv(dat, file = paste("WordbankData", LANGUAGE, ".csv"))
