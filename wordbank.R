@@ -67,7 +67,7 @@ id <- get_instrument_data(
 
 id_prod <- id %>%
   dplyr::mutate(produces = value == "produces") %>%
-  dplyr::group_by(age, definition, category, lexical_category) %>%
+  dplyr::group_by(age, uni_lemma, category, lexical_category) %>%
   dplyr::summarise(prod = sum(produces, na.rm = T),
                    completed = dplyr::n_distinct(data_id)) %>%
   dplyr::mutate(perc_producing = prod/completed)%>%
@@ -76,16 +76,16 @@ id_prod <- id %>%
 
 # get minimum age where percent producing is .50
 idp <- id_prod %>%
-  dplyr::group_by(definition, category, lexical_category) %>%
+  dplyr::group_by(uni_lemma, category, lexical_category) %>%
   dplyr::summarise(aoa50_prod = min(age, na.rm = T))
   
 
-idp <- merge(idp, word_list, by.x = "definition", by.y = "word_list", all.y = T)
+idp <- merge(idp, word_list, by.x = "uni_lemma", by.y = "word_list", all.y = T)
 
 # Save production data separately
 # 
 
-write.csv(idp, file = paste("WordbankProductionData", LANGUAGE, ".csv"))
+write.csv(idp, file = paste("WordbankProductionData", LANGUAGE, ".csv", sep = ""))
 
 
 # COMPREHENSION DATA
@@ -105,7 +105,7 @@ id_comp <- id_c %>%
   dplyr::mutate(ifelse(value == "yes" | value == "understands" | value == "often" | value == "sometimes" |
                          value == "produces", "understands", "")) %>%
   dplyr::mutate(comprehends = value == "understands") %>%
-  dplyr::group_by(age, definition, category, lexical_category) %>%
+  dplyr::group_by(age, uni_lemma, category, lexical_category) %>%
   dplyr::summarise(comp = sum(comprehends, na.rm = T),
                    completed = dplyr::n_distinct(data_id)) %>%
   dplyr::mutate(perc_comp = comp/completed)
@@ -113,19 +113,19 @@ id_comp <- id_c %>%
 
 # get minimum age where percent producing is .50
 idc <- id_comp %>%
-  dplyr::group_by(definition, category, lexical_category)%>%
+  dplyr::group_by(uni_lemma, category, lexical_category)%>%
   dplyr::filter(perc_comp >= .50)%>%
   dplyr::summarise(aoa50_comp = min(age, na.rm = T))
 
 
-idc <- merge(idc, word_list, by.x = "definition", by.y = "word_list", all.y = T)
+idc <- merge(idc, word_list, by.x = "uni_lemma", by.y = "word_list", all.y = T)
 
 
 
 # bring together summary of comprehension and production
 
 
-dat <- merge(idp, idc, by = c("definition", "order"), all = T) #if you can get both comprehension and production
+dat <- merge(idp, idc, by = c("uni_lemma", "order"), all = T) #if you can get both comprehension and production
 dat$order <- as.numeric(dat$order)
 
-write.csv(dat, file = paste("WordbankData", LANGUAGE, ".csv"))
+write.csv(dat, file = paste("WordbankData", LANGUAGE, ".csv", sep = ""))
