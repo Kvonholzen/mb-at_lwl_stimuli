@@ -1,0 +1,55 @@
+---
+title: 'MB AtHome: LWL stimuli search'
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# R version 4.1.0 (2021-05-18) -- "Camp Pontanezen"
+
+library(wordbankr)
+library(childesr)
+library(dplyr)
+
+```
+
+
+Principled way of doing this:
+
+- first, check if there is wordbank data
+  - if so, use this as the "founding" set of words to look through
+  - is not, then look for an internally provided set of words (csv file)
+          try looking for Dutch info in the manybabies1-CDI project (otherwise this is currently not public)
+  
+- extract any information from the wordbank data we may want
+  - age at which 50% is achieved for comprehension
+  - age at which 50% is achieved for production
+
+- then, token frequency in CHILDES
+
+- then peekbank data (only works for English now)
+
+
+
+```{r English_American}
+
+# first, identify the strings used for this language
+
+#Wordbank
+# get_instruments()
+wordbank_lang <- "English (American)"
+
+
+# CHILDES
+# uses the collection names listed here: https://childes.talkbank.org/access/
+childes_lang <- "Eng-NA"
+
+
+
+
+
+
+```
+
