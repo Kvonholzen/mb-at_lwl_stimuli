@@ -2,7 +2,12 @@
 
 The purpose of this repository is to provide code that can be used to generate information about potential stimuli, to be added to the Google Sheet "Word Properties" (https://docs.google.com/spreadsheets/d/1X_fSToEDGQ-jj03pY_xocKfT940LxmYPkoWkI4LDHRo/edit?usp=sharing)
 
-## wordbank.R
+# Update!
+
+Currently this project is being updated to automatically calculate Wordbank and CHILDES information for each language in the Many Babies At Home Looking-While-Listening project.
+
+
+## wordbank.R (now defunct, currently in development again)
 
 The 'wordbank.R' script can be adapted to calculate the following columns:
 
@@ -25,7 +30,7 @@ The 'peekbank.R' script can be adapted to calculate the following columns:
 *Note* Martin Zettersten did all the heavy lifting on this one! Here's his tutorial: https://mzettersten.github.io/peekbank-vignettes/peekbank_items/peekbank_item_vignette.html
 
 
-## childes.R
+## childes.R (now defunct, currently in development again)
 
 The 'childes.R' script can be adapted to calculate the following columns:
 

@@ -12,44 +12,62 @@ knitr::opts_chunk$set(echo = TRUE)
 library(wordbankr)
 library(childesr)
 library(dplyr)
+library(tidyr)
+library(purrr)
+library(stringi)
 
 ```
 
 
-Principled way of doing this:
-
-- first, check if there is wordbank data
-  - if so, use this as the "founding" set of words to look through
-  - is not, then look for an internally provided set of words (csv file)
-          try looking for Dutch info in the manybabies1-CDI project (otherwise this is currently not public)
-  
-- extract any information from the wordbank data we may want
-  - age at which 50% is achieved for comprehension
-  - age at which 50% is achieved for production
-
-- then, token frequency in CHILDES
-
-- then peekbank data (only works for English now)
+Goal of replacing at least part of the input entry in [Word Properties](https://docs.google.com/spreadsheets/d/1X_fSToEDGQ-jj03pY_xocKfT940LxmYPkoWkI4LDHRo/edit?usp=sharing) with this script.
 
 
 
 ```{r English_American}
 
-# first, identify the strings used for this language
-
+# Wordbank
+# first, identify the strings used for this language in wordbank
 #Wordbank
 # get_instruments()
 wordbank_lang <- "English (American)"
 
+# then, query Wordbank 
+source("scripts/wordbank.R")
+# returns aoa.m, a summary of youngest reported AoA for understanding and producing
+# returns word_list, a list of the words in aoa.m to be used for querying chiles in the next step 
 
 # CHILDES
-# uses the collection names listed here: https://childes.talkbank.org/access/
+# likely uses the collection names listed here: https://childes.talkbank.org/access/
+# check by inputting function here: get_transcripts(collection = "Eng-NA")
 childes_lang <- "Eng-NA"
 
+# then, query childes
+source("scripts/childes.R")
+# returns prod_stats, a summary of the token frequency of the words in word_list
 
 
+# Combine the Wordbank and CHILDES data together
+# if CHILDES doesn't produce any data, then return just Wordbank data, with NA's in the CHILDES column
 
-
+if(nrow(prod_stats) == 0){
+d <- left_join(aoa.m, prod_stats, by = c("definition" = "gloss"))
+} else{
+  d <- aoa.m
+  d$CHILDES_token_freq <- NA
+}
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
