@@ -95,9 +95,11 @@ w.list$definition <- sub("* \\(.*\\)", "", w.list$word_list)
 # [25] "Korean"                 "French (French)"        "Spanish (European)"    
 # [28] "Portuguese (European)"  "Mandarin (Taiwanese)" 
 
-wordbank_lang <- "English (American)"
+#wordbank_lang <- "English (American)"
+#wordbank_lang <- "German" # no comprehension data, so takes AoA here from production, as of May 3, 2022
+#wordbank_lang <- "Spanish (European)" # no uni_lemma as of May 3, 2022
 
-
+wordbank_lang <- "Spanish (Mexican)"
 
 # CHILDES
 #  [1] "Frogs"          "Eng-NA"         "Scandinavian"   "Spanish"        "French"        
@@ -105,8 +107,9 @@ wordbank_lang <- "English (American)"
 # [11] "Clinical"       "Eng-UK"         "Celtic"         "EastAsian"      "Slavic"        
 # [16] "German"         "Clinical-MOR"   "Biling"         "XLing"          "Dutch"  
 
-childes_lang <- "Eng-NA"
-
+# childes_lang <- "Eng-NA"
+#childes_lang <- "German"
+childes_lang <- "Spanish"
 
 ```
 
