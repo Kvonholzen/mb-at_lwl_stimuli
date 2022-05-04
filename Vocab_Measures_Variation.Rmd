@@ -1,0 +1,67 @@
+---
+title: 'MB AtHome: LWL Variation in AoA Across Languages'
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+# R version 4.1.0 (2021-05-18) -- "Camp Pontanezen"
+
+# install.packages("googlesheets4")
+
+library(googlesheets4)
+library(dplyr)
+library(rstatix)
+library(knitr)
+library(kableExtra)
+
+source("scripts/load_Word_Properties.R")
+
+```
+
+
+Based on the data collected in [Word Properties](https://docs.google.com/spreadsheets/d/1X_fSToEDGQ-jj03pY_xocKfT940LxmYPkoWkI4LDHRo/edit?usp=sharing), what kind of variation do we see in Age of Acquisition measures in our chosen list of words?
+
+
+## Wordbank AoAs
+
+### Production
+
+```{r production, echo=FALSE}
+
+kable(
+data %>%
+  group_by(Uni_Lemma, Syntactic_Category)%>%
+  get_summary_stats(Wordbank_Prod_AoA, type = "common")%>%
+  arrange(sd)
+)%>%
+  kable_styling() %>% 
+ scroll_box(width = "1000px", height = "400px")
+
+
+```
+
+
+
+
+### Comprehension
+
+```{r comprehension, echo=FALSE}
+
+kable(
+data %>%
+  group_by(Uni_Lemma, Syntactic_Category)%>%
+  get_summary_stats(Wordbank_Comp_AoA, type = "common")%>%
+  arrange(sd)
+)%>%
+  kable_styling() %>% 
+ scroll_box(width = "1000px", height = "400px")
+
+
+```
+
+
+
+
