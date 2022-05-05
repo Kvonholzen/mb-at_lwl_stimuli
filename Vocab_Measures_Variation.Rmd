@@ -29,7 +29,9 @@ Based on the data collected in [Word Properties](https://docs.google.com/spreads
 
 ### Production
 
-```{r production, echo=FALSE}
+Sorted by SD
+
+```{r production_sd, echo=FALSE}
 
 kable(
 data %>%
@@ -44,11 +46,28 @@ data %>%
 ```
 
 
+Sorted by Mean
+
+```{r production_mean, echo=FALSE}
+
+kable(
+data %>%
+  group_by(Uni_Lemma, Syntactic_Category)%>%
+  get_summary_stats(Wordbank_Prod_AoA, type = "common")%>%
+  arrange(mean)
+)%>%
+  kable_styling() %>% 
+ scroll_box(width = "1000px", height = "400px")
+
+
+```
 
 
 ### Comprehension
 
-```{r comprehension, echo=FALSE}
+Sorted by SD
+
+```{r comprehension_sd, echo=FALSE}
 
 kable(
 data %>%
@@ -64,4 +83,20 @@ data %>%
 
 
 
+Sorted by Mean
+
+
+```{r comprehension_mean, echo=FALSE}
+
+kable(
+data %>%
+  group_by(Uni_Lemma, Syntactic_Category)%>%
+  get_summary_stats(Wordbank_Comp_AoA, type = "common")%>%
+  arrange(mean)
+)%>%
+  kable_styling() %>% 
+ scroll_box(width = "1000px", height = "400px")
+
+
+```
 
