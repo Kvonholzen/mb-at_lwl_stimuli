@@ -1,0 +1,183 @@
+---
+title: 'MB AtHome: LWL stimuli Acquisition Data'
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# R version 4.1.0 (2021-05-18) -- "Camp Pontanezen"
+
+library(wordbankr)
+library(childesr)
+library(peekbankr)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(stringi)
+
+```
+
+
+Goal of replacing at least part of the input entry in [Word Properties](https://docs.google.com/spreadsheets/d/1X_fSToEDGQ-jj03pY_xocKfT940LxmYPkoWkI4LDHRo/edit?usp=sharing) with this script.
+
+```{r word_list}
+
+# 39 chosen words
+
+word_list <- c("drink (action)",
+      "eat",
+      "hug",
+      "kiss",
+      "play",
+      "point",
+      "sit",
+      "sleep",
+      "stand",
+      "bird",
+      "cow",
+      "dog",
+      "duck",
+      "fish (animal)",
+      "frog",
+      "horse",
+      "lion",
+      "monkey",
+      "foot",
+      "hand",
+      "shoe",
+      "sock",
+      "apple",
+      "banana",
+      "carrots",
+      "cookie",
+      "juice",
+      "milk",
+      "bottle",
+      "cup",
+      "spoon",
+      "baby",
+      "ball",
+      "book",
+      "cat",
+      "boat",
+      "car",
+      "train",
+      "truck"
+)
+
+w.list <- as.data.frame(word_list)
+w.list$order <- rownames(w.list)
+
+w.list$definition <- sub("* \\(.*\\)", "", w.list$word_list)
+
+#w.list$definition <- tolower(w.list$definition)
+
+
+```
+
+
+
+```{r set_languages}
+
+# Based on the language being investigated, change these variables!
+
+# wordbank
+#  [1] "British Sign Language"  "Cantonese"              "Croatian"              
+#  [4] "Danish"                 "English (American)"     "German"                
+#  [7] "Hebrew"                 "Italian"                "Mandarin (Beijing)"    
+# [10] "Norwegian"              "Russian"                "Spanish (Mexican)"     
+# [13] "Swedish"                "Turkish"                "French (Quebecois)"    
+# [16] "Slovak"                 "English (British)"      "American Sign Language"
+# [19] "Greek (Cypriot)"        "Kigiriama"              "Kiswahili"             
+# [22] "Czech"                  "English (Australian)"   "Latvian"               
+# [25] "Korean"                 "French (French)"        "Spanish (European)"    
+# [28] "Portuguese (European)"  "Mandarin (Taiwanese)" 
+
+#wordbank_lang <- "English (American)"
+#wordbank_lang <- "German" # no comprehension data, so takes AoA here from production, as of May 3, 2022
+#wordbank_lang <- "Spanish (European)" # no uni_lemma as of May 3, 2022
+
+wordbank_lang <- "Spanish (Mexican)"
+
+# CHILDES
+#  [1] "Frogs"          "Eng-NA"         "Scandinavian"   "Spanish"        "French"        
+#  [6] "DutchAfrikaans" "Chinese"        "Other"          "Japanese"       "Romance"       
+# [11] "Clinical"       "Eng-UK"         "Celtic"         "EastAsian"      "Slavic"        
+# [16] "German"         "Clinical-MOR"   "Biling"         "XLing"          "Dutch"  
+
+# childes_lang <- "Eng-NA"
+#childes_lang <- "German"
+childes_lang <- "Spanish"
+
+```
+
+
+
+
+
+
+
+```{r template}
+
+# query Wordbank 
+source("scripts/wordbank.R")
+# returns aoa.m, a summary of youngest reported AoA for understanding and producing
+# returns list_de_mot, a list of the language-specific (!) words in aoa.m to be used for querying CHILDES
+
+# query CHILDES
+# using the definition words identified in the last step
+# this helps ensure translations show up correctly
+
+
+# then, query childes
+source("scripts/childes.R")
+# returns prod_stats, a summary of the token frequency of the words in word_list
+
+
+
+
+# skipping Peekbank for now, since its not available in many languages, but see:
+# source("scripts/peekbank.R")
+# for a code of how to calculate item difficulty
+# in case more languages are added in the future
+
+
+
+
+
+
+
+# Combine the Wordbank and CHILDES data together
+# if CHILDES doesn't produce any data, then return just Wordbank data, with NA's in the CHILDES column
+
+if(nrow(prod_stats) != 0 & nrow(aoa.m) != 0){
+d <- left_join(aoa.m, prod_stats, by = c("definition" = "gloss"))
+} else if(nrow(prod_stats) == 0){
+  d <- aoa.m
+  d$CHILDES_token_freq <- NA
+} else {
+    d <- prod_stats
+  d$Wordbank_AoA_understands <- NA
+  d$Wordbank_AoA_produces <- NA
+}
+
+
+
+# write into their own csv file
+# which can be later edited to add additional information
+vs_filename <- paste0("data/", wordbank_lang, "_vocab_data.csv")  
+
+write.csv(d, file = vs_filename)
+
+
+```
+
+
+
+
+
+
+
+
