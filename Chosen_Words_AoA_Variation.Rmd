@@ -1,0 +1,310 @@
+---
+title: 'MB AtHome: LWL Variation in AoA Across Languages for Chosen Words'
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(fig.width=10, fig.height=6) 
+
+# R version 4.1.0 (2021-05-18) -- "Camp Pontanezen"
+
+# install.packages("googlesheets4")
+
+library(wordbankr)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(lme4)
+library(lmerTest)
+library(sjPlot)
+
+# source("scripts/AoA_variation_chosen_words_language_specific.R)
+load("data/chosen_10.RData")
+# file is dat.aoa
+
+# source("scripts/AoA_variation_chosen_words_force_10.R)
+load("data/force_10.RData")
+# file is d.aoa
+
+
+```
+
+## Purpose
+
+The purpose of this document is to understand whether Age of Acquisition varies between the target words we have chosen or could choose in the LWL project. It is based on Wordbank values and Age of Acquisition is calculated as the age at which 50% of children were reported to understand the word.
+
+As a reminder, these are the words we would like to use when testing our younger target age, up until 18 months.
+
+
+## Words we've chosen using our algorithm
+
+Based on the words chosen for now from [Stimuli Sets](https://docs.google.com/spreadsheets/d/1NNvla8KH0S-APkMg33n8AezOtrbWNv_IkiGV7Hzs710/edit#gid=0), how much does Age of Acquisition vary? 
+
+It looks like the AoA for most of our chosen words is between 12 and 15 months, but that some words aren't acquired until 20 months or later.
+
+*Note*: values for German are based on production, not understanding
+
+```{r echo = FALSE}
+
+lang.sum <- dat.aoa %>%
+  group_by(language)%>%
+  summarize(words = n_distinct(definition))
+
+
+plot.aoa <- dat.aoa %>%
+  pivot_longer(cols = understands:produces,
+    names_to = "mode",
+    values_to = "AoA"
+  )
+
+plot.aoa <- plot.aoa %>%
+  filter(mode == "understands")
+
+plot.aoa$AoA <- ifelse(plot.aoa$AoA == "Inf", NA, plot.aoa$AoA)
+
+
+ggplot(plot.aoa, aes(x = language, y = AoA, color = language)) +
+  #facet_wrap(.~mode)+
+  geom_boxplot()+
+  geom_jitter()+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "bottom")
+
+```
+
+
+
+### Nouns vs. Verbs
+
+Is there a big difference in AoA of understanding between nouns and verbs? This is one of our research questions and if we just happened to pick nouns that are acquired early and verbs that are acquired later (or vice versa), then this would present a confound. 
+
+The plots show that in general verbs have a later AoA, although a model comparing nouns and verbs does not bear out this difference.
+
+```{r echo = FALSE}
+
+ggplot(plot.aoa, aes(x = language, y = AoA, color = language)) +
+  facet_wrap(.~lexical_class)+
+  geom_boxplot()+
+  geom_jitter()+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "bottom")
+
+
+```
+
+```{r echo = FALSE}
+
+ggplot(plot.aoa, aes(x = lexical_class, y = AoA, color = lexical_class)) +
+  facet_wrap(.~language)+
+  geom_boxplot()+
+  geom_jitter()+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "bottom")
+
+
+```
+
+
+*Note*: German has been removed from this analysis.
+
+```{r echo = FALSE}
+
+
+aoa.d <- plot.aoa %>%
+  filter(mode == "understands") %>%
+  filter(language != "German")
+
+nv.model <- lmer(AoA ~ lexical_class +
+                   (1 | definition) +
+                   (1 | language),
+                 data = aoa.d, REML = FALSE)
+
+#summary(nv.model)
+
+tab_model(nv.model)
+
+```
+
+
+
+
+
+
+## 10 English words across languages
+
+If we take our 10 English words and match them across languages, what is the AoA variation? These would not end up being the words we would choose in each language, due to the constraints we've set (i.e. grammatical gender, onset of target-distractor pairs, etc.), but it let's us look quickly at more languages. 
+
+As before, it looks like the AoA for most of our chosen words is between 12 and 15 months, with some words acquired much later, although here we see more variation in general.
+
+*Note*: Understanding values for American Sign Language, Cantonese, Czech, English (Australian), German, and Greek (Cypriot) are duplicates of production values (there are no understanding scores for these languages).
+
+```{r echo = FALSE}
+
+lang.sum <- d.aoa %>%
+  group_by(language)%>%
+  summarize(words = n_distinct(definition))
+
+plot.aoa <- d.aoa %>%
+  pivot_longer(cols = understands:produces,
+    names_to = "mode",
+    values_to = "AoA"
+  )
+
+plot.aoa <- plot.aoa %>%
+  filter(mode == "understands")
+
+plot.aoa$AoA <- ifelse(plot.aoa$AoA == "Inf", NA, plot.aoa$AoA)
+
+
+ggplot(plot.aoa, aes(x = language, y = AoA, color = language)) +
+  #facet_wrap(.~mode)+
+  geom_boxplot()+
+  geom_jitter()+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "bottom")
+
+
+```
+
+### By Word
+
+Since we've now matched for word across languages, we can actually see the AoA breakdown for each word. As in the previous plot, we see that for these words, the AoA is typically between 12 and 15 months, but that this has a high maximum value.
+
+```{r echo = FALSE}
+
+ggplot(plot.aoa, aes(x = uni_lemma, y = AoA, color = uni_lemma)) +
+  #facet_wrap(.~mode)+
+  geom_boxplot()+
+  geom_jitter()+
+  theme(
+        legend.position = "bottom")
+
+```
+
+This plot is the same as above, but remove languages where we only have production data (American Sign Language, Cantonese, Czech, English (Australian), German, and Greek (Cypriot)). A lot of the variability is removed, but there are still some languages where the AoA is after 20 months.
+
+
+
+```{r echo = FALSE}
+
+aoa.d <- plot.aoa %>%
+  #filter(mode == "understands")%>%
+  filter(language != "American Sign Language" & language != "Cantonese" & language != "Czech" & language != "English (Australian)" & language != "German" & language != "Greek (Cypriot)")
+
+
+ggplot(aoa.d, aes(x = uni_lemma, y = AoA, color = uni_lemma)) +
+  #facet_wrap(.~mode)+
+  geom_boxplot()+
+  geom_jitter()+
+  theme(
+        legend.position = "bottom")
+
+```
+
+### Banana
+
+We can look at the AoA breakdown for a single word
+
+```{r echo = FALSE}
+
+aoa.d <- plot.aoa %>%
+  filter(uni_lemma == "banana")%>%
+  filter(language != "American Sign Language" & language != "Cantonese" & language != "Czech" & language != "English (Australian)" & language != "German" & language != "Greek (Cypriot)")
+
+
+ggplot(aoa.d, aes(x = language, y = AoA, color = language)) +
+  #facet_wrap(.~mode)+
+  geom_point(size = 3)+
+  theme_bw()+
+  labs(y = "Age 50% of infants understand (months)",
+       x = "")+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.x = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank())
+
+```
+
+
+### Nouns vs. Verbs
+
+Is there a big difference in AoA of understanding between nouns and verbs? This is one of our research questions and if we just happened to pick nouns that are acquired early and verbs that are acquired later (or vice versa), then this would present a confound. 
+
+The plots show that sometimes verbs have a later AoA and a model comparing nouns and verbs does not bear out a difference.
+
+*Note*: American Sign Language, Cantonese, Czech, English (Australian), German, and Greek (Cypriot) have been removed from this analysis (as they don't have unique scores for understanding).
+
+
+
+```{r echo = FALSE}
+
+aoa.d <- plot.aoa %>%
+  filter(lexical_class != "other")
+
+
+ggplot(aoa.d, aes(x = language, y = AoA, color = language)) +
+  facet_wrap(.~lexical_class)+
+  geom_boxplot()+
+  geom_jitter()+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "bottom")
+
+
+```
+
+```{r echo = FALSE}
+
+aoa.d <- plot.aoa %>%
+  filter(lexical_class != "other")
+
+
+ggplot(aoa.d, aes(x = lexical_class, y = AoA, color = lexical_class)) +
+  facet_wrap(.~language)+
+  geom_boxplot()+
+  geom_jitter()+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "bottom")
+
+
+```
+
+```{r echo = FALSE}
+
+
+aoa.d <- plot.aoa %>%
+  filter(mode == "understands" & lexical_class != "other")%>%
+  filter(language != "American Sign Language" & language != "Cantonese" & language != "Czech" & language != "English (Australian)" & language != "German" & language != "Greek (Cypriot)")
+
+
+nv.model <- lmer(AoA ~ lexical_class +
+                   (1 | definition) +
+                   (1 | language),
+                 data = aoa.d, REML = FALSE)
+
+#summary(nv.model)
+
+
+tab_model(nv.model)
+
+```
+
+
+
+
+
+
+
+
+

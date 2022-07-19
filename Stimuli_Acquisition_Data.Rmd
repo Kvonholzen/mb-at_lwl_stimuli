@@ -1,5 +1,5 @@
 ---
-title: 'MB AtHome: LWL stimuli Acquisition Data'
+title: 'MB AtHome: LWL stimuli AoA Calculation'
 output: html_document
 date: "`r Sys.Date()`"
 ---
@@ -10,8 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 # R version 4.1.0 (2021-05-18) -- "Camp Pontanezen"
 
 library(wordbankr)
-library(childesr)
-library(peekbankr)
 library(dplyr)
 library(tidyr)
 library(purrr)
@@ -19,8 +17,15 @@ library(stringi)
 
 ```
 
+# Explanation
 
-Goal of replacing at least part of the input entry in [Word Properties](https://docs.google.com/spreadsheets/d/1X_fSToEDGQ-jj03pY_xocKfT940LxmYPkoWkI4LDHRo/edit?usp=sharing) with this script.
+This script is designed to aid the MB-AH LWL project researchers in choosing target words to test in each language. It relies on the age of acquisition data calculated by Wordbank in available languages. 
+
+We focus first on stimuli selection for infants under 18 months. For each language, we would like to select 10 words, consisting of 8 nouns (4 pairs of 2) and 4 verbs (2 pairs of 2). This approach assumes that words will vary across languages, while strictly controlling for estimated age of acquisition (AoA). The measure of AoA that we use is the age at which 50% of children are estimated to understand the word. It will also control for semantic categories, 
+
+For the nouns:
+- 4 of the words should be acquired early (AoA around 12 months)
+- 4 of the words should be acquired later (AoA around 18 months)
 
 ```{r word_list}
 

@@ -1,0 +1,195 @@
+---
+title: 'MB AtHome - LWL: Target Word Choice Algorithm (Proposal 2)'
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+This script is designed to aid the MB-AH LWL project researchers in choosing target words to test in each language. It relies on the age of acquisition data calculated by Wordbank in available languages and will eventually contain a guide for how to calculate age of acquisition for languages not available on Wordbank. For now, an examples using this algorithm with American English is provided.
+
+# The Algorithm (Proposal 2)
+
+We focus first on stimuli selection for infants under 18 months. For each language, we would like to select 12 words, consisting of 8 nouns (4 pairs of 2) and 4 verbs (2 pairs of 2). This approach assumes that words will vary across languages, while strictly controlling for estimated age of acquisition (AoA) and semantic category. The measure of AoA that we use is the age at which 50% of children are estimated to understand the word, according to CDI data available on Wordbank or through in-house lab databases. It will also control for semantic categories, focusing on the categories "body_parts" and "food_drink" for nouns (following Bergelson & Swingley, 2012).
+
+For the nouns:
+
+* 4 of the nouns should be acquired early (AoA around 12 months, range 10 to 14 months)
+    + 2 nouns should come from the category "body_parts"
+    + 2 nouns should come from the category "food_drink"
+* 4 of the nouns should be acquired late (AoA around 18 months, range 16 to 20 months)
+    + 2 nouns should come from the category "body_parts"
+    + 2 nouns should come from the category "food_drink"
+
+For the verbs:
+
+* 2 of the verbs should be acquired early (AoA around 12 months)
+* 2 of the verbs should be acquired early (AoA around 18 months)
+
+
+```{r}
+#*If only production data is available:* The above AoA values should be based on comprehension data. If only production data is available, then take an AoA of around 18 months for early AoA and 24 months for late AoA
+```
+
+
+Language specific constraints concerning target-distractor pairs:
+
+* Nouns should be paired with nouns and verbs paired with verbs
+* Early nouns should be paired together, late nouns should be paired together (e.g. early body_parts paired with early food_drink)
+* Early verbs should be paired together, late verbs should be paired together
+* Pairs should have the same grammatical gender if your language uses determiners that mark grammatical gender (e.g., la/le in French)
+* Pairs should not start with the same phoneme
+
+**But I've got too many words to choose from!** As you can see below, each word decision is accompanied by a justification for choosing those particular words, beyond the constraints we've provided for target word choice. Use your best judgement and document with detail how you reached your decision.
+
+
+# Example: German
+
+American English doesn't use grammatical gender, which is an additional constraint in our word choice. To illustrate how this will work in choosing target words, we work through a different example, German. German also doesn't have CDI data for comprehension available in the Wordbank database. So, instead of AoAs of 12 and 18 for ealy and late, we'll use 18 and 24, to approximate differences in when these words are likely understood.
+
+```{r German}
+
+wordbank_lang <- "German"
+
+source("scripts/wordbank.R")
+
+```
+
+
+## Choosing the Nouns
+
+### Body Parts
+
+```{r echo = FALSE}
+
+body_parts %>% 
+  arrange(Wordbank_AoA_understands)  %>% 
+  kable %>%
+  kable_styling("striped", full_width = F) %>% 
+ scroll_box(width = "750px", height = "250px")
+
+```
+
+#### Early AoA
+
+There are several potential words with AoA's around 18 months that are easily image-able: Nase (nose), Ohr (ear), Füße (feet), Auge (eye), Bein (leg), Mund (mouth), Arm (arm). Of these, Nase and Ohr have the lowest AoAs, but if we skip ahead to food_drink, we see that we're limited in the gender of our choices. So, we choose Mund, as it has masculine gender, and Ohr, as it has neuter gender.
+
+Words chosen: **Mund** and **Ohr**
+
+#### Late AoA
+
+There are several potential words with AoA's around 24 months that are easily image-able: Finger (finger), Knie (knee), Zeh (toe), Zunge (tongue). Of these, Finger and Knie have the lowest AoAs, but if we skip ahead to food_drink, we see that we're limited in the gender of our choices. So we choose Zunge instead of Knie, as it has feminine gender.
+
+Words chosen: **Finger** and **Zunge**
+
+### Food Drink
+
+```{r echo = FALSE}
+
+food_drink %>% 
+  arrange(Wordbank_AoA_understands)  %>% 
+  kable %>%
+  kable_styling("striped", full_width = F) %>% 
+ scroll_box(width = "750px", height = "250px")
+
+```
+
+
+#### Early AoA
+
+There are several potential words with AoA's around 18 months: Apfel (apple), Eis (ice cream), and Eier (eggs). Ice cream can take many different forms, so we choose Apfel and Eier. But, since Eier is a plural form and we need to match the neuter Ohr, we take the singular form Ei (egg).
+
+Words chosen: **Apfel** and **Ei**
+
+#### Late AoA
+
+There are several potential words with AoA's around 24 months: Butter (butter), Saft (juice), Pizza (pizza) and Tomate (tomato). Pizza and Saft are perhaps the easiest of these to image.
+
+Words chosen: **Saft** and **Pizza**
+
+
+
+## Choosing the Verbs
+
+We can examine the potential verb target words. They're saved in the object "verbs". Here are our potential words, ordered by the AoA for comprehension (Wordbank_AoA_understands):
+
+
+```{r echo = FALSE}
+
+verbs %>% 
+  arrange(Wordbank_AoA_understands)  %>% 
+  kable %>%
+  kable_styling("striped", full_width = F) %>% 
+ scroll_box(width = "750px", height = "250px")
+
+```
+
+
+#### Early AoA
+
+There are a couple potential words with AoA's around 18 months that are easily image-able: essen (eat), trinken (drink), and malen (draw). Trinken and essen are quite similar to one another, so we choose trinken, as it is a more regular verb.
+
+Words chosen: **trinken** and **malen**
+
+
+#### Late AoA
+
+There are a couple words with AoA's around 24 months that are easily image-able: kissen (kiss) and sitzen (sit).
+
+Words chosen: **kissen** and **sitzen**
+
+
+## Target-Distractor pairs
+
+### Nouns
+
+#### Early AoA:
+* body_parts: Mund (m), Ohr (n)
+* food_drink: Apfel (m), Ei (n)
+
+* Mund - Apfel
+* Ohr - Ei
+
+#### Late AoA:
+* body_parts: Finger (m), Zunge (f)
+* food_drink: Saft (m), Pizza (f)
+
+* Finger - Saft
+* Zunge - Pizza
+
+
+### Verbs
+* Early AoA: trinken, malen
+* Late AoA: kissen, sitzen
+
+* trinken - malen
+* kissen - sitzen
+
+## Final List
+
+* Mund - Apfel
+* Ohr - Ei
+* Finger - Saft
+* Zunge - Pizza
+* trinken - malen
+* kissen - sitzen
+
+# Advanced: No Wordbank Data available
+
+Could use private lab CDI data
+or best judgement, but document it!
+
+Coming soon: pipeline for computing AoA on private lab CDI data
+
+
+
+
+
+

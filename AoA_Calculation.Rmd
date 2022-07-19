@@ -1,0 +1,254 @@
+---
+title: 'MB AtHome - LWL: Target Word Choice Algorithm (Proposal 2)'
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+This script is designed to aid the MB-AH LWL project researchers in choosing target words to test in each language. It relies on the age of acquisition data calculated by Wordbank in available languages and will eventually contain a guide for how to calculate age of acquisition for languages not available on Wordbank. For now, an examples using this algorithm with American English is provided.
+
+# The Algorithm
+
+We focus first on stimuli selection for infants under 18 months. For each language, we would like to select 12 words, consisting of 8 nouns (4 pairs of 2) and 4 verbs (2 pairs of 2). This approach assumes that words will vary across languages, while strictly controlling for estimated age of acquisition (AoA) and semantic category. The measure of AoA that we use is the age at which 50% of children are estimated to understand the word, according to CDI data available on Wordbank or through in-house lab databases. It will also control for semantic categories, focusing on the categories "body_parts" and "food_drink" for nouns (following Bergelson & Swingley, 2012).
+
+For the nouns:
+
+* 4 of the nouns should be acquired early (AoA around 12 months, range 10 to 14 months)
+    + 2 nouns should come from the category "body_parts"
+    + 2 nouns should come from the category "food_drink"
+* 4 of the nouns should be acquired late (AoA around 18 months, range 16 to 20 months)
+    + 2 nouns should come from the category "body_parts"
+    + 2 nouns should come from the category "food_drink"
+
+For the verbs:
+
+* 2 of the verbs should be acquired early (AoA around 12 months)
+* 2 of the verbs should be acquired early (AoA around 18 months)
+
+
+```{r include=FALSE}
+#*If only production data is available:* The above AoA values should be based on comprehension data. If only production data is available, then take an AoA of around 18 months for early AoA and 24 months for late AoA
+```
+
+
+Language specific constraints concerning target-distractor pairs:
+
+* Nouns should be paired with nouns and verbs paired with verbs
+* Early nouns should be paired together, late nouns should be paired together (e.g. early body_parts paired with early food_drink)
+* Early verbs should be paired together, late verbs should be paired together
+* Pairs should have the same grammatical gender if your language uses determiners that mark grammatical gender (e.g., la/le in French)
+* Pairs should not start with the same phoneme
+
+**But I've got too many words to choose from!** As you can see below, each word decision is accompanied by a justification for choosing those particular words, beyond the constraints we've provided for target word choice. Use your best judgement and document with detail how you reached your decision.
+
+# Example: American English
+
+To determine the AoA of words and facilitate our choice of target words, we can query the [Wordbank](http://wordbank.stanford.edu/) database. First we load the packages we'll need. 
+
+```{r packages}
+
+# R version 4.1.0 (2021-05-18) -- "Camp Pontanezen"
+
+library(wordbankr)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(stringi)
+library(kableExtra)
+
+```
+
+Then, we will want to set the language we'd like to choose stimuli for. We can use the "get_instruments()" function from the wordbankr package. The options are:
+
+```{r echo = FALSE}
+
+gi <- get_instruments()
+
+gi %>% 
+  kable %>%
+  kable_styling("striped", full_width = F) %>% 
+ scroll_box(width = "750px", height = "250px")
+
+```
+
+We'll start with American English and we set the variable "wordbank_lang" to "English (American)", as this is how this language is defined in wordbankr.
+
+```{r English_1}
+
+wordbank_lang <- "English (American)"
+
+
+```
+
+Next, we find out the AoA for comprehension and production for nouns from the body_part and food_drink categories as well as for verbs. The wordbank package will do most of the heavy lifting here and we'll be using the "fit_aoa" function. [You can read more here.](https://cran.r-project.org/web/packages/wordbankr/vignettes/wordbankr.html#advanced-functionality-age-of-acquisition) This script will return "aoa.m", which is a summary of the youngest reported AoA for unterstanding and producing. [You can download the wordbank.R file here](https://github.com/Kvonholzen/mb-at_lwl_stimuli/blob/main/scripts/wordbank.R).
+
+```{r English_2}
+
+source("scripts/wordbank.R")
+
+```
+
+## Choosing the Nouns
+
+### Body Parts
+
+We can examine the potential noun target words from the body parts category. They're saved in the object "body_parts". Here are our potential words, ordered by the AoA for comprehension (Wordbank_AoA_understands):
+
+
+```{r echo = FALSE}
+
+body_parts %>% 
+  arrange(Wordbank_AoA_understands)  %>% 
+  kable %>%
+  kable_styling("striped", full_width = F) %>% 
+ scroll_box(width = "750px", height = "250px")
+
+```
+#### Early AoA
+
+There are several potential words with AoA's around 12 months: nose, eye, foot, hair, and mouth. Hair can be rather difficult to represent in an image and if we look at the words that are available for the late AoA, eye and foot are different enough from the potential words there to limit confusion.
+
+Words chosen: **eye** and **foot**
+
+#### Late AoA
+
+There are several potential words with AoA's around 18 months, perhaps the most image-able of these are: arm, finger, toe, tongue, and leg. If we look at the words that are available for the early AoA, finger and tongue are more different than our choices there. 
+
+Words chosen: **finger** and **tongue**
+
+
+
+### Food Drink
+
+We can examine the potential noun target words from the food/drink category. They're saved in the object "food_drink". Here are our potential words, ordered by the AoA for comprehension (Wordbank_AoA_understands):
+
+
+```{r echo = FALSE}
+
+food_drink %>% 
+  arrange(Wordbank_AoA_understands)  %>% 
+  kable %>%
+  kable_styling("striped", full_width = F) %>% 
+ scroll_box(width = "750px", height = "250px")
+
+```
+
+
+#### Early AoA
+
+There are several potential words with AoA's around 12 months: banana, juice, milk, cookie, and cheese. Cookies can take many different forms and we don't want to choose both juice and milk, because they are similar to each other. Juice has a lower production AoA, so we choose this one.
+
+Words chosen: **banana** and **juice**
+
+
+#### Late AoA
+
+There are several potential words with AoA's around 18 months: carrots, egg, pasta, peas, and pizza. Pizza and egg both have lower production AoAs and are quite imageable.
+
+Words chosen: **pizza** and **egg**
+
+
+## Choosing the Verbs
+
+We can examine the potential verb target words. They're saved in the object "verbs". Here are our potential words, ordered by the AoA for comprehension (Wordbank_AoA_understands):
+
+
+```{r echo = FALSE}
+
+verbs %>% 
+  arrange(Wordbank_AoA_understands)  %>% 
+  kable %>%
+  kable_styling("striped", full_width = F) %>% 
+ scroll_box(width = "750px", height = "250px")
+
+```
+
+
+#### Early AoA
+
+There are several potential words with AoA's around 12 months that are easily image-able: kiss, drink, eat, and hug. Eat has a lower lower production AoA, than drink and kiss is more easily image-able than hug.
+
+Words chosen: **eat** and **kiss**
+
+
+#### Late AoA
+
+There are a couple words with AoA's around 18 months that are easily image-able: smile, sit, and draw. Both smile and sit start with the same onset, so we choose smile, since it has the lower AoA.
+
+Words chosen: **smile** and **draw**
+
+
+
+
+
+
+## Target-Distractor pairs
+
+We also need to choose target-distractor pairs that follow the constraints we've set. As a reminder, these constraints are:
+
+* Nouns should be paired with nouns and verbs paired with verbs
+* Early nouns should be paired together, late nouns should be paired together (e.g. early body_parts paired with early food_drink; THIS COULD EASILY CHANGE!)
+* Early verbs should be paired together, late verbs should be paired together
+* Pairs should have the same grammatical gender if your language uses determiners that mark grammatical gender (e.g., la/le in French); 
+* Pairs should not start with the same phoneme
+
+### Nouns
+
+#### Early AoA:
+* body_parts: eye, foot
+* food_drink: banana, juice
+
+English doesn't have grammatical gender and none of these words start with the same phoneme. So, we could pair these together however we wish. Here are the pairs chosen:
+
+* banana - eye
+* juice - foot
+
+#### Late AoA:
+* body_parts: finger, tongue
+* food_drink: pizza, egg
+
+English doesn't have grammatical gender and none of these words start with the same phoneme. So, we could pair these together however we wish. Here are the pairs chosen:
+
+* egg - finger
+* pizza - tongue
+
+### Verbs
+
+Here the pairing is straightforward, since there are only 2 early AOA verbs and 2 late AoA verbs:
+
+#### Early AoA:
+* eat - kiss
+
+#### Late AoA:
+* smile - draw
+
+## Final List
+
+* banana - eye
+* juice - foot
+* egg - finger
+* pizza - tongue
+* eat - kiss
+* smile - draw
+
+
+# Advanced: No Wordbank Data available
+
+Could use private lab CDI data
+or best judgement, but document it!
+We'll come up with a guide for this, if we choose to go with Proposal 2.
+
+
+
+
+
+
+

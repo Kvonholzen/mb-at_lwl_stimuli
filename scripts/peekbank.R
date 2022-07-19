@@ -53,6 +53,8 @@ t_max <- 2000
 max_prop_missing <- 0.5
 #age bin size (number of months per bin)
 age_bin_size <- 6
+#add baseline window for computing baseline-corrected means
+baseline_window <- c(-2000,0)
 
 
 by_trial_means <- aoi_data_joined %>%
@@ -76,7 +78,35 @@ by_trial_means <- aoi_data_joined %>%
   #remove trials with insufficient looking to target or distractor
   filter(prop_missing<=max_prop_missing)
 
+#compute baseline looking (for baseline-corrected means)
+by_trial_baseline <- aoi_data_joined %>%
+  #restrict to english datasets (this is just because there are so few non-English datasets atm)
+  filter(native_language == "eng") %>%
+  #restrict age range
+  filter(age > 12, age <= 60) %>%
+  # familiar target items only %>%
+  filter(stimulus_novelty == "familiar") %>%
+  #window of analysis
+  filter(t_norm >= baseline_window[1], t_norm <= baseline_window[2]) %>%
+  #bin ages (can adjust size of age bins here)
+  mutate(age_binned = cut(age, seq(12,60,age_bin_size))) %>%
+  rename(target_label = english_stimulus_label) %>%
+  group_by(dataset_name,subject_id, trial_id, target_label, 
+           age, age_binned) %>%
+  summarise(
+    baseline_n=n(),
+    baseline_ms=baseline_n*25,
+    baseline_looking = sum(aoi == "target", na.rm = TRUE) / 
+      (sum(aoi == "target", na.rm=TRUE) + 
+         sum(aoi=="distractor", na.rm=TRUE)),
+    prop_baseline_missing = mean(aoi %in% c("missing","other"), na.rm = TRUE)) %>%
+  #remove trials with insufficient looking to target or distractor
+  filter(prop_baseline_missing<=max_prop_missing& baseline_ms>=500)
 
+#combine
+by_trial_target_means <- by_trial_means %>%
+  left_join(by_trial_baseline) %>%
+  mutate(corrected_target_looking=prop_target_looking-baseline_looking)
 
 by_subj_item_means <- by_trial_means %>%
   group_by(dataset_name,subject_id, target_label, 
@@ -99,6 +129,21 @@ by_item_means <- by_subj_item_means %>%
   summarise(
     target_looking = mean(avg_target_looking,na.rm=TRUE)
   )
+
+
+
+
+
+
+
+
+
+#################################
+
+
+
+
+
 
 
 # here starts Katie's mess
@@ -159,3 +204,47 @@ dat <- dat %>%
 dat <- dat[,c("order", "target_label", "(12,18)", "(18,24)", "(24,60)")]
 
 dat$order <- as.numeric(dat$order)
+
+
+
+
+
+####################################
+
+by_subj_item_means <- by_trial_target_means %>%
+  group_by(dataset_name,subject_id, target_label, 
+           age, age_binned) %>%
+  summarise(
+    trial_num=n(),
+    avg_target_looking = mean(prop_target_looking,na.rm=TRUE),
+    avg_corrected_target_looking=mean(corrected_target_looking,na.rm=TRUE)
+  )
+
+by_item_means <- by_subj_item_means %>%
+  group_by(dataset_name, target_label,age_binned) %>%
+  summarise(
+    subj_n=n(),
+    target_looking = mean(avg_target_looking,na.rm=TRUE),
+    corrected_looking = mean(avg_corrected_target_looking,na.rm=TRUE)
+  )
+
+by_item_means_across_dataset <- by_item_means %>%
+  group_by(age_binned,target_label) %>%
+  summarize(
+    dataset_num=n(),
+    prop_target_looking=mean(target_looking,na.rm=TRUE),
+    corrected_target_looking=mean(corrected_looking,na.rm=TRUE)
+  )
+
+by_item_means <- by_item_means %>%
+  left_join(select(by_item_means_across_dataset,-prop_target_looking,-corrected_target_looking))
+
+
+ggplot(filter(by_item_means,dataset_num>1),aes(target_label,target_looking,fill=dataset_name,color=dataset_name))+
+  geom_dotplot(binaxis="y",stackdir="center",dotsize=2)+
+  theme(legend.position="none")+
+  theme(axis.text.x=element_text(angle=90,vjust=0.5,size=10))+
+  facet_wrap(~age_binned,nrow=4)+
+  geom_hline(yintercept=0.5,linetype="dashed")+
+  xlab("Target Label")+
+  ylab("Proportion Target Looking")

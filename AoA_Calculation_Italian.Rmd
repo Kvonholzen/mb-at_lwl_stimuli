@@ -1,0 +1,165 @@
+---
+title: 'MB AtHome: LWL stimuli AoA Calculation: Italian'
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+# Constraints
+
+For the nouns:
+
+* 4 of the nouns should be acquired early (AoA around 12 months)
+    + 2 nouns should come from the category "body_parts"
+    + 2 nouns should come from the category "food_drink"
+* 4 of the nouns should be acquired late (AoA around 18 months)
+    + 2 nouns should come from the category "body_parts"
+    + 2 nouns should come from the category "food_drink"
+
+For the verbs:
+
+* 2 of the verbs should be acquired early (AoA around 12 months)
+* 2 of the verbs should be acquired early (AoA around 18 months)
+
+
+Language specific constraints concerning target-distractor pairs:
+
+* Nouns should be paired with nouns and verbs paired with verbs
+* Early nouns should be paired together, late nouns should be paired together (e.g. early body_parts paired with early food_drink)
+* Early verbs should be paired together, late verbs should be paired together
+* Pairs should have the same grammatical gender if your language uses determiners that mark grammatical gender (e.g., la/le in French); 
+* Pairs should not start with the same phoneme
+
+# Find Language in wordbankr
+
+```{r packages}
+
+# R version 4.1.0 (2021-05-18) -- "Camp Pontanezen"
+
+library(wordbankr)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(stringi)
+library(kableExtra)
+
+```
+
+```{r echo = FALSE}
+
+gi <- get_instruments()
+
+gi %>% 
+  kable %>%
+  kable_styling("striped", full_width = F) %>% 
+ scroll_box(width = "750px", height = "250px")
+
+```
+
+# Italian
+
+
+```{r German}
+
+wordbank_lang <- "Italian"
+
+source("scripts/wordbank.R")
+
+```
+
+
+## Choosing the Nouns
+
+### Body Parts
+
+```{r echo = FALSE}
+
+body_parts %>% 
+  arrange(Wordbank_AoA_understands)  %>% 
+  kable %>%
+  kable_styling("striped", full_width = F) %>% 
+ scroll_box(width = "750px", height = "250px")
+
+```
+
+#### Early AoA
+
+
+
+#### Late AoA
+
+
+
+### Food Drink
+
+```{r echo = FALSE}
+
+food_drink %>% 
+  arrange(Wordbank_AoA_understands)  %>% 
+  kable %>%
+  kable_styling("striped", full_width = F) %>% 
+ scroll_box(width = "750px", height = "250px")
+
+```
+
+
+#### Early AoA
+
+
+
+#### Late AoA
+
+
+
+
+## Choosing the Verbs
+
+
+```{r echo = FALSE}
+
+verbs %>% 
+  arrange(Wordbank_AoA_understands)  %>% 
+  kable %>%
+  kable_styling("striped", full_width = F) %>% 
+ scroll_box(width = "750px", height = "250px")
+
+```
+
+
+#### Early AoA
+
+
+
+
+#### Late AoA
+
+
+
+
+## Target-Distractor pairs
+
+### Nouns
+
+#### Early AoA:
+
+
+#### Late AoA:
+
+
+
+### Verbs
+
+
+## Final List
+
+
+
+
